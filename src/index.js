@@ -73,65 +73,155 @@ createTicketTable();
 createVisitasTable();
 // sincronizar();
 
-// app.get('/user', async (req, res) => {
-//   try {
-//     const { username } = req.query;
-//     const usernameId = await sequelize.query(
-//       'SELECT user_id from users where username = $3',
-//       [username]
-//     );
-//     // console.log(usernameId);
-//     // const allTodos = await pool.query(
-//     //   'SELECT * from todos where userid = $1',
-//     //   [usernameId.rows[0].id]
-//     // );
-//     // res.json(allTodos.rows);
-//   } catch (err) {
-//     console.error(err.message);
-//     res.status(400);
-//     res.json({ message: `${err.message}` });
-//   }
-// });
-
 app.get('/user', async (req, res) => {
   try {
-    const user = await User.findAll();
-    res.json(user);
-  } catch (error) {
-    res.status(500).json({ error: 'Error fetching users' });
+    const { username } = req.query;
+
+    // Obtener el usuario directamente en una consulta
+    const userQuery = await sequelize.query(
+      'SELECT * FROM users WHERE username = :username',
+      {
+        replacements: { username },
+        type: sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    if (userQuery.length === 0) {
+      return res.status(404).json({ message: 'Usuario no encontrado.' });
+    }
+
+    // Obtener todos los usuarios con el mismo username
+    const allUsersQuery = await sequelize.query(
+      'SELECT * FROM users WHERE username = :username',
+      {
+        replacements: { username: userQuery[0].username },
+        type: sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    res.json(allUsersQuery);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ message: 'Error en el servidor.' });
   }
 });
 
+// app.get('/user', async (req, res) => {
+//   try {
+//     const { username } = req.query;
+
+//     // Obtener el usuario directamente en una consulta
+//     const userQuery = await sequelize.query(
+//       'SELECT * FROM users WHERE username = $1',
+//       {
+//         bind: [username],
+//         type: sequelize.QueryTypes.SELECT,
+//       }
+//     );
+
+//     if (userQuery.length === 0) {
+//       return res.status(404).json({ message: 'Usuario no encontrado.' });
+//     }
+
+//     // Obtener todos los usuarios con el mismo username
+//     const allUsersQuery = await sequelize.query(
+//       'SELECT * FROM users WHERE username = $1',
+//       {
+//         bind: [userQuery[0].username],
+//         type: sequelize.QueryTypes.SELECT,
+//       }
+//     );
+
+//     res.json(allUsersQuery);
+//   } catch (err) {
+//     console.error(err.message);
+//     res.status(500).json({ message: 'Error en el servidor.' });
+//   }
+// });
+
 app.post('/user', async (req, res) => {
   try {
-    const { user_id, password, email, departamentoId, username, fecha, rol} = req.body;
-    const newUser = await User.create({
-      user_id,
-      password,
-      email,
-      departamentoId,
-      username,
-      fecha,
-      rol,
-    });
-    res.status(201).json(newUser);
+    const { user_id, departamento_id, username, password,  email, fecha, rol} = req.body;
+
+    // Crea un nuevo usuario en la base de datos
+    const newUser = await sequelize.query(
+      'INSERT INTO users (user_id, departamento_id, username,  password, fecha, email, rol ) VALUES ( :user_id,  :departamento_id, :username, :password, :fecha, :email , :rol)',
+      {
+        replacements: { user_id, departamento_id, username,  password, fecha, email, rol }, // Proporciona los valores para los marcadores de posición :username y :email
+        type: sequelize.QueryTypes.INSERT, // Especifica el tipo de consulta como INSERT
+      }
+    );
+    const insertedUser = await sequelize.query(
+      'SELECT * FROM users WHERE user_id = :user_id',
+      {
+        replacements: { user_id }, // Proporciona el valor de user_id
+        type: sequelize.QueryTypes.SELECT,
+      }
+    );
+    res.status(201).json(insertedUser[0]);;
   } catch (error) {
-    res.status(500).json({ error: 'Error creating user' });
+    console.error(error.message);
+    res.status(500).json({ message: 'Error en el servidor.' });
   }
 });
 
 // app.post('/user', async (req, res) => {
 //   try {
-//     const { userId, password, email, departamentoId, nombre, fecha, rol} = req.body;
-//     const newUser = await pool.query(
-//       'INSERT INTO Users (userId, departamentoId, nombre, password, fecha, email, rol, createdAt, updatedAt) VALUES ($1, $2, $3, $4, $5, to_timestamp($6), to_timestamp($7))',
-//       [userId, departamentoId, nombre, password, fecha, email, rol]
+//       const {user_id, username, password, email, rol, fecha} = req.query;
+
+//       // Crear un nuevo usuario en la Base de datos
+//       const newUser = await User.create({
+//         user_id,
+//         username,
+//         password,
+//         email,
+//         rol, 
+//         fecha
+//       });
+//       const newUserQuery = await sequelize.query(
+//         'INSERT INTO todos (user_id, username, password, email, rol, fecha) VALUES ($1, $2, $3, $4, $5, to_timestamp($6))',
+//         [newUser.rows[0].user_id, username, password, email, rol, fecha]
+//       );
+//  res.status(201).json(newUser);
+//   } catch (error) {
+//     console.error(error.message);
+//     res.status(500).json({ message: 'Error en el servidor.' });
+//   }
+  
+// });
+
+
+// app.post('/user', async (req, res) => {
+//   try {
+//     const { user_id, password, email, departamentoId, username, fecha, rol} = req.body;
+//     const newUser = await User.create({
+//       user_id,
+//       password,
+//       email,
+//       departamentoId,
+//       username,
+//       fecha,
+//       rol,
+//     });
+//     res.status(201).json(newUser);
+//   } catch (error) {
+//     res.status(500).json({ error: 'Error creating user' });
+//   }
+// });
+ 
+// app.post('/user', async (req, res) => {
+//   try {
+//     const { user_id, password, email, departamentoId, username, fecha, rol, createdAt, updatedAt} = req.body;
+//     const newUser = await sequelize.query(
+//       'INSERT INTO users (user_id, departamentoId, username, password, fecha, email, rol, createdAt, updatedAt) VALUES (:user_id, departamentoId, :username, :password, :fecha, :email, :rol, :createdAt, :updatedAt)',
+//       [user_id.rows[0], departamentoId, username, password, fecha, email, rol, createdAt, updatedAt]
 //     );
 //     res.status(201).json(newUser);
 //   } catch (error) {
 //     res.status(500).json({ error: 'Error creating user' });
 //   }
 // });
+
 // app.delete("/user", async(req,res) =>{
 //   try {
 //       const { user_id } = req.body;

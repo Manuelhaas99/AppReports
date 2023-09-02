@@ -13,11 +13,11 @@ const Tickets = sequelize.define('tickets', {
       key: 'user_id'
       }
     },
-    departamentoId: {
+    departamento_id: {
         type: DataTypes.INTEGER,
         references: {
         model: Departamento,
-        key: 'departamentoId'
+        key: 'departamento_id'
         }
     },
     status: {
@@ -43,7 +43,7 @@ const Tickets = sequelize.define('tickets', {
   });
 
   Tickets.belongsTo(Departamento, {
-    foreignKey: 'departamentoId',
+    foreignKey: 'departamento_id',
   });
   
   module.exports = {
