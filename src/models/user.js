@@ -7,8 +7,8 @@ const { Departamento } = require('./departamento.js');
 const User = sequelize.define('user', {
   user_id: {
     type: DataTypes.INTEGER,
-    allowNull: false,
-    primaryKey: true
+    primaryKey: true,
+    autoIncrement: true
   },
   departamento_id: {
     type: DataTypes.INTEGER,
