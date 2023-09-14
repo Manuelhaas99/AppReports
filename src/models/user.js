@@ -1,8 +1,8 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../database/client.js');
 
-
 const { Departamento } = require('./departamento.js');
+
 
 const User = sequelize.define('user', {
   user_id: {
@@ -10,12 +10,12 @@ const User = sequelize.define('user', {
     primaryKey: true,
     autoIncrement: true
   },
-  departamento_id: {
+  dept_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
     model: Departamento,
-    key: 'departamento_id'
+    foreignKey: 'dept_id'
     }
   },
   username: {
@@ -51,8 +51,9 @@ const User = sequelize.define('user', {
     timestamps: true,
 });
 
+
 User.belongsTo(Departamento, {
-  foreignKey: 'departamento_id',
+  foreignKey: 'dept_id',
 });
 
 module.exports = {

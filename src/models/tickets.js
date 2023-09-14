@@ -17,7 +17,7 @@ const Tickets = sequelize.define('tickets', {
         type: DataTypes.INTEGER,
         references: {
         model: Departamento,
-        key: 'departamento_id'
+        key: 'dept_id'
         }
     },
     status: {

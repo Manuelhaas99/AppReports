@@ -4,7 +4,7 @@ const { User } = require('./models/user.js')
 const { Tickets } = require ('./models/tickets.js');
 const { Visitas } = require('./models/visitas.js');
 const { Departamento } = require('./models/departamento.js');
-const { Op } = require("sequelize");
+const { where } = require('sequelize');
 const app = express()
 const port = 3000
 
@@ -73,6 +73,8 @@ createTicketTable();
 createVisitasTable();
 // sincronizar();
 
+
+// metodos para la tabla users.
 app.get('/user', async (req, res) => {
   try {
     const { username } = req.query;
@@ -94,10 +96,10 @@ app.get('/user', async (req, res) => {
 
 app.post('/user', async (req, res) => {
   try {
-    const { departamento_id, username, password,  email, fecha, rol} = req.body;
+    const { dept_id, username, password,  email, fecha, rol} = req.body;
 
     // Crea un nuevo usuario en la base de datos
-    const newUser = await User.create({ departamento_id, username, password, email, fecha, rol })
+    const newUser = await User.create({ dept_id, username, password, email, fecha, rol })
     
     res.status(201).json(newUser);
   } catch (error) {
@@ -130,9 +132,6 @@ app.delete('/user', async (req, res) => {
 });
 
 
-
-
-
 app.put("/user", async(req,res) =>{
   try {
     
@@ -157,6 +156,87 @@ app.put("/user", async(req,res) =>{
 
 });
 
+
+// Metodos para la tabla departamentos
+app.get('/departamento', async (req, res) => {
+  try {
+    const { nombre } = req.query;
+
+    const departamento = await Departamento.findOne({ where: { nombre }})
+    if(departamento === null){
+      return res.status(404).json ({ message: 'Departamentos no encontrado. '})
+    }
+
+    res.json(departamento)
+  } catch(err) {
+    console.error(err.message)
+    res.status(500).json({ message: 'Error en el servidor. '})
+  }
+});
+
+
+
+app.post('/departamento', async (req, res) => {
+  try {
+    const { dept_id, nombre, descripcion } = req.body;
+
+    const newDept = await Departamento.create({ dept_id, nombre, descripcion })
+
+    res.status(201).json(newDept);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ message: 'Error en el servidor. '})
+  }
+});
+
+
+
+app.delete('/departamento', async (req, res) => {
+  try {
+
+    const { dept_id } = req.body;
+
+    const departamento = await Departamento.findOne({ where: { dept_id } })
+    if (departamento === null) {
+      return res.status(404).json({ message: 'Departamento no encontrado. '})
+    }
+
+    await Departamento.destroy({
+      where: {
+        dept_id: dept_id
+      }
+    });
+    res.status(201).json(departamento);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ message: 'Error en el servidor.' })
+  }
+});
+
+
+app.put("/departamento", async(req, res) => {
+  try {
+
+    const { dept_id, nombre, descripcion } = req.body;
+    const departamento = await Departamento.findOne({ where: { dept_id }});
+    if ( departamento === null){
+      return res.status(404).json ({ message: 'Departamento no encontrado. '})
+    }
+    await departamento.update({ nombre, descripcion}, {
+      where: {
+        dept_id: dept_id
+      }
+    });
+    
+    const updateDept = await Departamento.findByPk(dept_id);
+    res.status(201).json(updateDept)
+  } catch (error) {
+    console.error(err.message);
+    res.status(400)
+    res.json({message: `${err.message}`})
+  }
+
+});
 
 
 app.get('/', (req, res) => {

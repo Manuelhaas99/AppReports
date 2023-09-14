@@ -1,9 +1,9 @@
 async function createUser(req, res){
     try {
-        const {user_id, departamento_id, nombre, fecha, email, rol  } =req.body;
+        const {user_id, dept_id, nombre, fecha, email, rol  } =req.body;
         const newUser = await User.create({
           user_id,
-          departamento_id,
+          dept_id,
           nombre,
           fecha,
           email,
