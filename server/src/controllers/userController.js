@@ -1,17 +1,16 @@
-const User = require('../models/user');
-const bcrypt = require('bcrypt');
-
+const { encryptPassword } = require('../utils/password-hash');
+const { User } = require('../models/user');
 
 const postUser = async (req, res) => {
   try {
-    const { username, password } = req.body;
+    console.log('inicio');
+    const { email, password } = req.body;
 
-    const usernameValid = await pool.query(
-      'SELECT username FROM users WHERE username = $1',
-      [username]
-    );
+    const isUserValid = await User.findOne({
+      where: { email },
+    });
 
-    if (usernameValid.rows.length !== 0) {
+    if (isUserValid) {
       res.json({ message: 'usuario ya registrado' });
     }
 
@@ -21,22 +20,32 @@ const postUser = async (req, res) => {
 
     const createdAt = Date.now() / 1000.0;
     const hashedPassword = await encryptPassword(password);
-    const role = 'user';
 
-    const newUser = await pool.query(
-      'INSERT INTO users (email, password) VALUES ($1, $2)',
-      [username, hashedPassword, role, createdAt]
-    );
+    console.log('Creando usuario');
 
-    if (newUser.rowCount > 0) {
-      res.json({ message: 'usuario registrado exitosamente', status: 'OK' });
+    const newUser = await User.create({
+      email,
+      password: hashedPassword,
+      createdAt,
+    });
+
+    if (!newUser.user_id) {
+      res.json({ message: 'Usuario no creado' });
     }
+    res.json({ message: 'usuario registrado exitosamente', status: 'OK' });
   } catch (error) {
-    errorHandling(error, res);
+    console.error(error);
+    res.json({ message: 'Error al registrar usuario' });
   }
 };
 
+const getUsers = async (req, res) => {
+  const usersFromDb = await User.findAll();
+  const { password, ...users } = usersFromDb;
+  res.json({ users });
+};
 
 module.exports = {
   postUser,
+  getUsers,
 };

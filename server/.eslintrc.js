@@ -13,5 +13,7 @@ module.exports = {
   },
   rules: {
     // Personaliza tus reglas aquí
+    'no-console': 'off',
+    'import/extensions': 'off',
   },
 };
