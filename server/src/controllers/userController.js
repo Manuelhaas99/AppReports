@@ -3,7 +3,6 @@ const { User } = require('../models/user');
 
 const postUser = async (req, res) => {
   try {
-    console.log('inicio');
     const { email, password } = req.body;
 
     const isUserValid = await User.findOne({
@@ -11,11 +10,13 @@ const postUser = async (req, res) => {
     });
 
     if (isUserValid) {
-      res.json({ message: 'usuario ya registrado' });
+      res.json({ message: 'usuario ya registrado', status: 'WARN' });
+      return;
     }
 
     if (!password) {
       res.json({ message: 'Inserta un contraseña' });
+      return;
     }
 
     const createdAt = Date.now() / 1000.0;
@@ -32,6 +33,7 @@ const postUser = async (req, res) => {
     if (!newUser.user_id) {
       res.json({ message: 'Usuario no creado' });
     }
+    console.log('Usuario creado');
     res.json({ message: 'usuario registrado exitosamente', status: 'OK' });
   } catch (error) {
     console.error(error);
