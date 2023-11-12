@@ -32,6 +32,7 @@ const postUser = async (req, res) => {
 
     if (!newUser.user_id) {
       res.json({ message: 'Usuario no creado' });
+      return;
     }
     console.log('Usuario creado');
     res.json({ message: 'usuario registrado exitosamente', status: 'OK' });

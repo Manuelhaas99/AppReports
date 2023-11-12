@@ -18,7 +18,7 @@ app.use('/user', userRoutes);
 app.use('/jardineria', jardineriaRoutes);
 app.use('/plantas-electricas', plantasElectricasRoutes);
 app.use('/seguridad', seguridadRoutes);
-app.use('login', loginRoutes);
+app.use('/login', loginRoutes);
 
 // TODO agregar mas informacion del servidor - HORA, RAM, CPU, ETC
 app.get('/isActive', (req, res) => {
