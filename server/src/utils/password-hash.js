@@ -12,6 +12,16 @@ const encryptPassword = async (password) => {
   }
 };
 
+const verifyPassword = async (password, hashedPass) => {
+  try {
+    return await bcrypt.compare(password, hashedPass);
+  } catch (error) {
+    console.error('Error verifying password');
+    return false;
+  }
+};
+
 module.exports = {
   encryptPassword,
+  verifyPassword,
 };
