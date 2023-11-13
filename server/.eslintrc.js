@@ -15,5 +15,7 @@ module.exports = {
     // Personaliza tus reglas aquí
     'no-console': 'off',
     'import/extensions': 'off',
+    'object-curly-newline': 'off',
+    'consistent-return': 'off',
   },
 };
